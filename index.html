@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decentralized Zork</title>
+    <style>
+        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Courier New', Courier, monospace; margin: 0; }
+        .terminal { padding: 2em; max-width: 800px; margin: 5vh auto; height: 90vh; display: flex; flex-direction: column; }
+        #output { flex-grow: 1; overflow-y: auto; white-space: pre-wrap; }
+        .prompt-line { display: flex; }
+        .prompt-line span { color: #58a6ff; }
+        #input { background: transparent; border: none; color: #c9d1d9; font-family: inherit; font-size: 1em; width: 100%; outline: none; }
+        .response { color: #8b949e; }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <div id="output"></div>
+        <div class="prompt-line">
+            <span>></span>
+            <input type="text" id="input" autofocus>
+        </div>
+    </div>
+
+    <script type="module">
+      import { backend } from "dfx-generated/backend";
+
+      const output = document.getElementById("output");
+      const input = document.getElementById("input");
+
+      function addResponse(text) {
+        output.innerHTML += `<div class="response">${text}</div>`;
+        output.scrollTop = output.scrollHeight;
+      }
+
+      function addCommand(text) {
+        output.innerHTML += `<div><span>> </span>${text}</div>`;
+      }
+
+      async function sendCommand(command) {
+        if (command.trim() === "") return;
+        addCommand(command);
+        input.value = "";
+        const response = await backend.processCommand(command);
+        addResponse(response);
+      }
+
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          sendCommand(e.target.value);
+        }
+      });
+
+      // Start the game
+      addResponse("Welcome to Decentralized Zork. The entire game runs on the Internet Computer blockchain.");
+      sendCommand("look");
+
+    </script>
+</body>
+</html>
